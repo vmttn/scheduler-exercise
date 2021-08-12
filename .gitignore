@@ -21,3 +21,4 @@ venv/
 *.env
 !.template.env
 .tmp/
+.tox/
