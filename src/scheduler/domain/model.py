@@ -21,6 +21,22 @@ class Event:
     resource_id: str
     timestamp: datetime
 
+    @classmethod
+    def from_json(cls, data):
+        return cls(
+            type=EventType[data["eventType"]],
+            resource_id=data["eventResourceId"],
+            timestamp=datetime.fromisoformat(data["eventTimestamp"]),
+        )
+
+    @classmethod
+    def from_csv(cls, row):
+        return cls(
+            type=EventType[row["type"]],
+            resource_id=row["resource_id"],
+            timestamp=datetime.fromisoformat(row["timestamp"]),
+        )
+
 
 @dataclass(frozen=True)
 class Dependency:
@@ -30,6 +46,14 @@ class Dependency:
 
     def validate(self, event: Event) -> bool:
         return event.type is self.type and VALIDATORS[self.type].validate(self, event)
+
+    @classmethod
+    def from_csv(cls, row):
+        return cls(
+            type=EventType[row["type"]],
+            resource_id=row["resource_id"],
+            life_duration=timedelta(seconds=int(row["life_duration"])),
+        )
 
 
 class DependencyValidator:
@@ -104,3 +128,9 @@ class Configuration:
     def execute(self):
         logger.info("Executing...")
         self._last_execution = get_time()
+
+    @classmethod
+    def from_csv(cls, row):
+        config = cls(name=row["name"], dependencies=[])
+        config._last_execution = datetime.fromisoformat(row["last_execution"]) if row["last_execution"] else None
+        return config
