@@ -1,11 +1,11 @@
-from datetime import datetime
+from scheduler.utils.time import get_tz_time
 
 
 def test_can_trigger_job(api_client, scheduling_configuration_1):
     data = {
         "eventType": "FILE",
         "eventResourceId": "/scheduling_configuraiton_1/directory/path/file_1.txt",
-        "eventTimestamp": datetime.utcnow().isoformat(),
+        "eventTimestamp": get_tz_time().isoformat(),
     }
 
     response = api_client.post("/events", json=data)
@@ -16,7 +16,7 @@ def test_can_trigger_job(api_client, scheduling_configuration_1):
     data = {
         "eventType": "TIME_BASED",
         "eventResourceId": "cron",
-        "eventTimestamp": datetime.utcnow().isoformat(),
+        "eventTimestamp": get_tz_time().isoformat(),
     }
 
     response = api_client.post("/events", json=data)

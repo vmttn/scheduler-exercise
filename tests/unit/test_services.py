@@ -1,9 +1,12 @@
 from datetime import datetime
 from typing import List
 
+from dateutil import tz
+
 from scheduler.adapters.configurations import FakeConfigurationRepository
 from scheduler.domain.model import Configuration, Event, EventType
 from scheduler.service_layer import services
+from scheduler.utils.time import get_tz_time
 
 
 def test_process_event_001(scheduling_configuration_1: Configuration):
@@ -11,12 +14,12 @@ def test_process_event_001(scheduling_configuration_1: Configuration):
     file_event = Event(
         type=EventType.FILE,
         resource_id="/scheduling_configuraiton_1/directory/path/foo",
-        timestamp=datetime.utcnow(),
+        timestamp=get_tz_time(),
     )
     time_based_event = Event(
         type=EventType.TIME_BASED,
         resource_id="cron",
-        timestamp=datetime.utcnow(),
+        timestamp=get_tz_time(),
     )
 
     services.process_event(configurations, file_event)
@@ -43,26 +46,26 @@ def test_can_reproduce_scenario(scheduling_configuration_1: Configuration):
 
     fake_time = FakeTime(
         [
-            datetime(2020, 1, 1, 12, 0, 0),
-            datetime(2020, 1, 1, 12, 5, 0),
-            datetime(2020, 1, 1, 12, 15, 0),
-            datetime(2020, 1, 1, 12, 15, 30),
-            datetime(2020, 1, 1, 12, 30, 1),
-            datetime(2020, 1, 1, 13, 10, 1),
-            datetime(2020, 1, 1, 13, 30, 1),
+            datetime(2020, 1, 1, 12, 0, 0, tzinfo=tz.tzlocal()),
+            datetime(2020, 1, 1, 12, 5, 0, tzinfo=tz.tzlocal()),
+            datetime(2020, 1, 1, 12, 15, 0, tzinfo=tz.tzlocal()),
+            datetime(2020, 1, 1, 12, 15, 30, tzinfo=tz.tzlocal()),
+            datetime(2020, 1, 1, 12, 30, 1, tzinfo=tz.tzlocal()),
+            datetime(2020, 1, 1, 13, 10, 1, tzinfo=tz.tzlocal()),
+            datetime(2020, 1, 1, 13, 30, 1, tzinfo=tz.tzlocal()),
         ]
     )
 
     from scheduler.utils import time
 
-    time.TIME_FN = fake_time
+    time.DEFAULT_TIME_FN = fake_time
 
     events = [
         (
             Event(
                 type=EventType.FILE,
                 resource_id="/scheduling_configuraiton_1/directory/path/file_1.txt",
-                timestamp=datetime(2020, 1, 1, 11, 59, 59),
+                timestamp=datetime(2020, 1, 1, 11, 59, 59, tzinfo=tz.tzlocal()),
             ),
             scheduling_configuration_1.dependencies[0],
             False,
@@ -71,7 +74,7 @@ def test_can_reproduce_scenario(scheduling_configuration_1: Configuration):
             Event(
                 type=EventType.FILE,
                 resource_id="/scheduling_configuraiton_1/directory/path/file_2.txt",
-                timestamp=datetime(2020, 1, 1, 12, 4, 59),
+                timestamp=datetime(2020, 1, 1, 12, 4, 59, tzinfo=tz.tzlocal()),
             ),
             scheduling_configuration_1.dependencies[0],
             False,
@@ -80,7 +83,7 @@ def test_can_reproduce_scenario(scheduling_configuration_1: Configuration):
             Event(
                 type=EventType.FILE,
                 resource_id="/scheduling_configuraiton_1/directory/path/file_3.txt",
-                timestamp=datetime(2020, 1, 1, 12, 14, 50),
+                timestamp=datetime(2020, 1, 1, 12, 14, 50, tzinfo=tz.tzlocal()),
             ),
             scheduling_configuration_1.dependencies[0],
             False,
@@ -89,7 +92,7 @@ def test_can_reproduce_scenario(scheduling_configuration_1: Configuration):
             Event(
                 type=EventType.FILE,
                 resource_id="/scheduling_configuraiton_1/directory/an_other_path/file_3.txt",
-                timestamp=datetime(2020, 1, 1, 12, 15, 28),
+                timestamp=datetime(2020, 1, 1, 12, 15, 28, tzinfo=tz.tzlocal()),
             ),
             None,
             False,
@@ -98,7 +101,7 @@ def test_can_reproduce_scenario(scheduling_configuration_1: Configuration):
             Event(
                 type=EventType.TIME_BASED,
                 resource_id="cron",
-                timestamp=datetime(2020, 1, 1, 12, 30, 0),
+                timestamp=datetime(2020, 1, 1, 12, 30, 0, tzinfo=tz.tzlocal()),
             ),
             scheduling_configuration_1.dependencies[1],
             True,
@@ -107,7 +110,7 @@ def test_can_reproduce_scenario(scheduling_configuration_1: Configuration):
             Event(
                 type=EventType.TIME_BASED,
                 resource_id="cron",
-                timestamp=datetime(2020, 1, 1, 13, 10, 0),
+                timestamp=datetime(2020, 1, 1, 13, 10, 0, tzinfo=tz.tzlocal()),
             ),
             scheduling_configuration_1.dependencies[1],
             True,
@@ -116,7 +119,7 @@ def test_can_reproduce_scenario(scheduling_configuration_1: Configuration):
             Event(
                 type=EventType.TIME_BASED,
                 resource_id="cron",
-                timestamp=datetime(2020, 1, 1, 13, 30, 0),
+                timestamp=datetime(2020, 1, 1, 13, 30, 0, tzinfo=tz.tzlocal()),
             ),
             scheduling_configuration_1.dependencies[1],
             False,

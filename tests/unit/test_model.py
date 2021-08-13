@@ -1,8 +1,9 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import pytest
 
 from scheduler.domain.model import Dependency, Event, EventType
+from scheduler.utils.time import get_tz_time
 
 
 @pytest.mark.parametrize(
@@ -12,7 +13,7 @@ from scheduler.domain.model import Dependency, Event, EventType
             Event(
                 type=EventType.FILE,
                 resource_id="/foo/bar/baz",
-                timestamp=datetime.utcnow() - timedelta(seconds=1800),
+                timestamp=get_tz_time() - timedelta(seconds=1800),
             ),
             True,
         ),
@@ -20,7 +21,7 @@ from scheduler.domain.model import Dependency, Event, EventType
             Event(
                 type=EventType.FILE,
                 resource_id="/foo",
-                timestamp=datetime.utcnow() - timedelta(seconds=1800),
+                timestamp=get_tz_time() - timedelta(seconds=1800),
             ),
             False,
         ),
@@ -28,7 +29,7 @@ from scheduler.domain.model import Dependency, Event, EventType
             Event(
                 type=EventType.FILE,
                 resource_id="/foo/bar/baz",
-                timestamp=datetime.utcnow() - timedelta(seconds=3601),
+                timestamp=get_tz_time() - timedelta(seconds=3601),
             ),
             False,
         ),
