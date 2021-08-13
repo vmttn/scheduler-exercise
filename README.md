@@ -1,58 +1,65 @@
-# Flask bootstrap
+# `Event-based Scheduler`
 
-## Setup environment
+## Documentation
 
-You must set your python virtual environment, with virtualenv or conda. 
+### Project
 
-### With virtualenv
+    .
+    ├── data/               # Our persisted data
+    ├── src/scheduler/      # The scheduler app packaged
+    |   ├── adapters/       # Abstractions of the persistence layer
+    |   ├── domain/         # Domain modelling of the problem
+    |   ├── service_layer/  # Usecase of that domain
+    |   └── entrypoints/    # Entrypoint to our usecases (an Flask API)
+    ├── tests/
+    └── example.sh          # High-level example
 
-```bash
-virtualenv --python=python3.7 flask-bootstrap
-source flask-bootstrap/bin/activate
-pip install --upgrade pip
-pip install --upgrade -r requirements.txt
+### About the persistence
+
+The persistence layer simply consists of CSV files, which is enough for our simple usecase (1 user, no isolation needed).
+
+## Usage
+
+### Installing the dependencies
+
+```sh
+python3.8 -m venv --prompt scheduler .venv
+source .venv/bin/activate
+pip install -rrequirements/base.txt
 ```
 
-### With Anaconda
+### Running the test suite
 
-```bash
-conda create -n flask-bootstrap python=3.7.9 -y
-conda activate flask-bootstrap
-pip install --upgrade pip
-pip install --upgrade -r requirements.txt
+Make sure `tox` is available (either through the newly created venv or with `pipx`).
+
+```sh
+tox
 ```
 
-## Start server
+### Running the api
 
-Start your API server with:
-```bash
-python main.py
+```sh
+docker-compose up -d
 ```
 
-## Test server
+### Playing an example
 
-Try one of the following commands:
-```bash
-curl localhost:5000
-curl localhost:5000/John%20Doe
-curl -XPOST localhost:5000 -d '{"name": "John Doe"}' 
+```sh
+./example.sh
 ```
 
-## Test scenario
+### Changing the configurations
 
-Once your server is up, you can execute a test scenario with:
-```bash
-python test.py test-input.json
-```
+Edit the `data/configurations.csv` and `data/dependencies.csv` files.
 
-Assuming test-input.json contains:
-```bash
-{"name": "You"}
-{"name": "Me"}
-```
+#### `data/configurations.csv`
 
-All events in `test-input.json` are sent to API. API responses are printed to standard output.
-```bash
-200 Hello, You!
-200 Hello, Me!
-```
+| name | last_execution               |
+|------|------------------------------|
+| ...  | (Optional) iso8601 timestamp |
+
+#### `data/dependencies.csv`
+
+| config_name            | type                                  | resource_id | life_duration | timestamp                                                                  |
+|------------------------|---------------------------------------|-------------|---------------|----------------------------------------------------------------------------|
+| associated config name | `FILE` or `TIME_BASED` or `BIG_QUERY` | ...         | in seconds    | (Optional) iso8601 timestamp for the last event validating this dependency |
