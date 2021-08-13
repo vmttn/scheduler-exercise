@@ -30,7 +30,6 @@ class CsvConfigurationRepository(ConfigurationRepository):
     def __init__(self, folder: Path = settings.CSV_REPOSITORY_FOLDER) -> None:
         self._folder = folder
         self._configs: Dict[str, Configuration] = {}
-        self._ensure_files()
         self._load()
 
     def _ensure_files(self):
@@ -39,6 +38,8 @@ class CsvConfigurationRepository(ConfigurationRepository):
         (self._folder / "dependencies.csv").touch(exist_ok=True)
 
     def _load(self):
+        self._ensure_files()
+
         with (self._folder / "configurations.csv").open() as f:
             reader = csv.DictReader(f)
             for row in reader:
@@ -57,7 +58,9 @@ class CsvConfigurationRepository(ConfigurationRepository):
     def add(self, config: Configuration):
         self._configs[config.name] = config
 
-    def _dump(self):
+    def dump(self):
+        self._ensure_files()
+
         with (self._folder / "configurations.csv").open("w") as f:
             writer = csv.DictWriter(f, ["name", "last_execution"])
             writer.writeheader()

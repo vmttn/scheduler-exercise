@@ -39,4 +39,4 @@ def scheduling_configuration_1(csv_config_repository: CsvConfigurationRepository
             ],
         )
     )
-    csv_config_repository._dump()
+    csv_config_repository.dump()
