@@ -103,6 +103,7 @@ class Configuration:
         matching_dependencies = self.find_matchs(event)
 
         for dependency in matching_dependencies:
+            logger.info(f"Validated {dependency} from {self.name}.")
             if (
                 dependency not in self._last_match_by_dependency
                 or self._last_match_by_dependency[dependency].timestamp < event.timestamp
@@ -126,7 +127,7 @@ class Configuration:
         return False
 
     def execute(self):
-        logger.info("Executing...")
+        logger.info(f"Executing {self.name}")
         self._last_execution = get_time()
 
     @classmethod

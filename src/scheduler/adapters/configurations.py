@@ -1,10 +1,13 @@
 import csv
+import logging
 import shutil
 from pathlib import Path
 from typing import Dict, List
 
 from scheduler import settings
 from scheduler.domain.model import Configuration, Dependency, Event
+
+logger = logging.getLogger(__name__)
 
 
 class ConfigurationRepository:
@@ -40,15 +43,21 @@ class CsvConfigurationRepository(ConfigurationRepository):
     def _load(self):
         self._ensure_files()
 
+        logger.info(f"Loading configurations from {self._folder}")
+
+        logger.info("Configurations:")
         with (self._folder / "configurations.csv").open() as f:
             reader = csv.DictReader(f)
             for row in reader:
+                logger.info(row)
                 config = Configuration.from_csv(row)
                 self._configs[config.name] = config
 
+        logger.info("Dependencies:")
         with (self._folder / "dependencies.csv").open() as f:
             reader = csv.DictReader(f)
             for row in reader:
+                logger.info(row)
                 config = self._configs[row["config_name"]]
                 dependency = Dependency.from_csv(row)
                 config.dependencies.append(dependency)
