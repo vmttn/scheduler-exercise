@@ -22,3 +22,4 @@ venv/
 !.template.env
 .tmp/
 .tox/
+.pytest_cache
