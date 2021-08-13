@@ -48,6 +48,12 @@ docker-compose up -d
 ./example.sh
 ```
 
+### Resetting the persistence layer
+
+```sh
+git checkout data
+```
+
 ### Changing the configurations
 
 Edit the `data/configurations.csv` and `data/dependencies.csv` files.
